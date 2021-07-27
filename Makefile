@@ -21,10 +21,11 @@ tests:
 	docker-compose exec php php vendor/bin/simple-phpunit --exclude-group functional
 
 tests-functional:
-	docker-compose exec php rm var/test.sqlite -f
-	docker-compose exec php php bin/console doctrine:schema:create --env=test
-#	docker-compose exec php php bin/console doctrine:migrations:migrate --no-interaction --env=test
-#	docker-compose exec php php bin/console doctrine:fixtures:load --no-interaction --env=test
+	docker-compose exec php php bin/console doctrine:database:drop --force --env=test
+	docker-compose exec php php bin/console doctrine:database:create --env=test
+	docker-compose exec php php bin/console doctrine:migrations:migrate --no-interaction --env=test
+	docker-compose exec php php bin/console doctrine:fixtures:load --no-interaction --env=test
+
 	docker-compose exec php php vendor/bin/simple-phpunit --group functional
 
 
