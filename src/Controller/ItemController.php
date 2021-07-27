@@ -21,9 +21,7 @@ class ItemController extends AbstractController
      */
     public function list(ItemService $itemService) : JsonResponse
     {
-        $items = $this->getDoctrine()->getRepository(Item::class)->findBy(['user' => $this->getUser()]);
-        $allItems = $itemService->prepareRepositoryItemsForJsonResponse($items);
-
+        $allItems = $itemService->getPreparedItemsForJsonResponseByUser($this->getUser());
         return $this->json($allItems);
     }
 

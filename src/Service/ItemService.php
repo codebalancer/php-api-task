@@ -59,6 +59,17 @@ class ItemService
         return $allItems;
     }
 
+    /**
+     * get items by user prepared ready for json response
+     * @param UserInterface $user
+     * @return array
+     */
+    public function getPreparedItemsForJsonResponseByUser(UserInterface $user)
+    {
+        $items = $this->getItemsForUser($user);
+        return $this->prepareRepositoryItemsForJsonResponse($items);
+    }
+
 
 
 
