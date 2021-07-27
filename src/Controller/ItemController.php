@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ItemController extends AbstractController
 {
     /**
+     * list all user items after authentication
      * @Route("/item", name="item_list", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
@@ -26,6 +27,7 @@ class ItemController extends AbstractController
     }
 
     /**
+     * create item with data for user
      * @Route("/item", name="item_create", methods={"POST"})
      * @IsGranted("ROLE_USER")
      */
@@ -43,6 +45,7 @@ class ItemController extends AbstractController
     }
 
     /**
+     * delete item
      * @Route("/item/{id}", name="items_delete", methods={"DELETE"})
      * @IsGranted("ROLE_USER")
      */

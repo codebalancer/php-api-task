@@ -28,18 +28,18 @@ class ItemControllerTest extends WebTestCase
         /**
          * @var $userRepository UserRepository
          */
-        $userRepository = static::$container->get(UserRepository::class);
+        $userRepository = $this->getUserRepository();
         /**
          * @var $itemRepository ItemRepository
          */
-        $itemRepository = static::$container->get(ItemRepository::class);
+        $itemRepository = $this->getItemRepository();
 
         /**
          * @var $user User
          */
         $user = $userRepository->findOneByUsername('john');
 
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
             $this->fail('user for test missing');
         }
 
@@ -81,6 +81,65 @@ class ItemControllerTest extends WebTestCase
         // both should be the same item(id) and content
         $this->assertSame($item->getId(), $last['id']);
         $this->assertSame($item->getData(), $last['data']);
+    }
+
+    public function testDelete()
+    {
+        $client = static::createClient();
+        $user = $this->getUserRepository()->findOneByUsername('john');
+        $user2 = $this->getUserRepository()->findOneByUsername('jane');
+        $client->loginUser($user);
+
+        $data = 'secure data to be deleted';
+        $newItemData = ['data' => $data];
+
+        $client->request('POST', '/item', $newItemData);
+        $response = $client->getResponse();
+
+        // get the id
+        $client->request('GET', '/item');
+        $responseData = json_decode($client->getResponse()->getContent(), TRUE);
+
+        $lastItem = $responseData[array_key_last($responseData)];
+        $itemId = $lastItem['id'];
+
+        // logout does not exist, so login as someone else
+        $client->loginUser($user2);
+
+        // try to delete someone elses data should not work now
+        $client->request('DELETE', '/item/' . $itemId );
+        $this->assertNotSame(200, $client->getResponse()->getStatusCode());
+        $responseData2 = json_decode($client->getResponse()->getContent(), TRUE);
+        $this->assertArrayHasKey('error', $responseData2);
+        #$this->assertSame('No item', $responseData2['error']);
+
+        // go back to correct user
+        $client->loginUser($user);
+
+        // now it should work
+        $client->request('DELETE', '/item/' . $itemId);
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        // and should be gone from collection
+        $client->request('GET', '/item');
+        $responseData3 = json_decode($client->getResponse()->getContent(), TRUE);
+
+        foreach ($responseData3 as $item3){
+            if ($itemId == $item3['id']) {
+                $this->fail('item was not successfully deleted');
+            }
+        }
 
     }
+
+    private function getUserRepository() : UserRepository
+    {
+        return static::$container->get(UserRepository::class);
+    }
+
+    private function getItemRepository() : ItemRepository
+    {
+        return static::$container->get(ItemRepository::class);
+    }
+
 }
