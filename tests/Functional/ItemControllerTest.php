@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Class ItemControllerTest
@@ -24,6 +25,10 @@ class ItemControllerTest extends WebTestCase
         $entityManager = static::$container->get(EntityManagerInterface::class);
 
         $user = $userRepository->findOneByUsername('john');
+
+        if (!$user instanceof UserInterface) {
+            $this->fail('user for test missing');
+        }
 
         $client->loginUser($user);
         
