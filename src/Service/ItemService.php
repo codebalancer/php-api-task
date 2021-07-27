@@ -48,6 +48,7 @@ class ItemService
     {
         $allItems = [];
         foreach ($items as $item) {
+            $oneItem = [];
             $oneItem['id'] = $item->getId();
             $oneItem['data'] = $item->getData();
             $oneItem['created_at'] = $item->getCreatedAt();
