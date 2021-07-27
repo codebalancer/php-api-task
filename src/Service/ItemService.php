@@ -15,13 +15,27 @@ class ItemService
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * create new Item for the user with some data
+     * @param User $user
+     * @param string $data
+     */
     public function create(User $user, string $data): void
     {
-        $item = new Item();
+        $item = $this->createItem();
         $item->setUser($user);
         $item->setData($data);
 
         $this->entityManager->persist($item);
         $this->entityManager->flush();
+    }
+
+    /**
+     * factory method that is mockable
+     * @return Item
+     */
+    public function createItem() : Item
+    {
+        return new Item();
     }
 } 
