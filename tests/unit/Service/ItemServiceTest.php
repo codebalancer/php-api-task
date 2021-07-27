@@ -67,8 +67,8 @@ class ItemServiceTest extends TestCase
         $item2->method('getId')->willReturn(2);
         $item2->method('getData')->willReturn('more secret 2 data in here');
 
-        $date2Created = new \DateTime('2014-12-27 09:45:02');
-        $date2Updated = new \DateTime('2015-01-22 13:34:59');
+        $date2Created = new \DateTime('2014-12-27 09:45:02 UTC');
+        $date2Updated = new \DateTime('2015-01-22 13:34:59 UTC');
         $item2->method('getCreatedAt')->willReturn($date2Created);
         $item2->method('getUpdatedAt')->willReturn($date2Updated);
         $items[] = $item2;
@@ -82,15 +82,15 @@ class ItemServiceTest extends TestCase
         $expected1 = [
             'id' => 1,
             'data' => 'secret 1 data',
-            'created_at' => '',
-            'update_at' => ''
+            'created_at' => new \DateTime('2021-01-21 18:27:59 UTC'),
+            'updated_at' => new \DateTime('2021-01-22 11:25:11 UTC')
         ];
 
         $expected2 = [
             'id' => 2,
             'data' => 'more secret 2 data in here',
-            'created_at' => '',
-            'update_at' => ''
+            'created_at' => new \DateTime('2014-12-27 09:45:02 UTC'),
+            'updated_at' => new \DateTime('2015-01-22 13:34:59 UTC')
         ];
 
         $this->assertEquals($expected1, $result1);
