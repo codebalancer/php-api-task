@@ -44,7 +44,7 @@ class ItemService
      * @param $items
      * @return array
      */
-    public function prepareRepositoryItemsForJsonResponse($items)
+    public function prepareRepositoryItemsForJsonResponse($items) : array
     {
         $allItems = [];
         foreach ($items as $item) {
@@ -64,10 +64,19 @@ class ItemService
      * @param UserInterface $user
      * @return array
      */
-    public function getPreparedItemsForJsonResponseByUser(UserInterface $user)
+    public function getPreparedItemsForJsonResponseByUser(User $user) : array
     {
         $items = $this->getItemsForUser($user);
         return $this->prepareRepositoryItemsForJsonResponse($items);
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    public function getItemsForUser(User $user)
+    {
+        return $this->entityManager->getRepository(Item::class)->findByUser($user);
     }
 
 
