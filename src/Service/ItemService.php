@@ -38,4 +38,27 @@ class ItemService
     {
         return new Item();
     }
+
+    /**
+     * helper: prepare Items from repository to be displayed as json data
+     * @param $items
+     * @return array
+     */
+    public function prepareRepositoryItemsForJsonResponse($items)
+    {
+        $allItems = [];
+        foreach ($items as $item) {
+            $oneItem['id'] = $item->getId();
+            $oneItem['data'] = $item->getData();
+            $oneItem['created_at'] = $item->getCreatedAt();
+            $oneItem['updated_at'] = $item->getUpdatedAt();
+            $allItems[] = $oneItem;
+        }
+
+        return $allItems;
+    }
+
+
+
+
 } 

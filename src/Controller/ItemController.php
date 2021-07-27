@@ -19,18 +19,10 @@ class ItemController extends AbstractController
      * @Route("/item", name="item_list", methods={"GET"})
      * @IsGranted("ROLE_USER")
      */
-    public function list() : JsonResponse
+    public function list(ItemService $itemService) : JsonResponse
     {
         $items = $this->getDoctrine()->getRepository(Item::class)->findBy(['user' => $this->getUser()]);
-
-        $allItems = [];
-        foreach ($items as $item) {
-            $oneItem['id'] = $item->getId();
-            $oneItem['data'] = $item->getData();
-            $oneItem['created_at'] = $item->getCreatedAt();
-            $oneItem['updated_at'] = $item->getUpdatedAt();
-            $allItems[] = $oneItem;
-        }
+        $allItems = $itemService->prepareRepositoryItemsForJsonResponse($items);
 
         return $this->json($allItems);
     }
