@@ -8,6 +8,11 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * Class ItemControllerTest
+ * @package App\Tests
+ * @group functional
+ */
 class ItemControllerTest extends WebTestCase
 {
     public function testCreate()

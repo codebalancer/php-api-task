@@ -9,6 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 
+/**
+ * Class ItemServiceTest
+ * @package App\Tests\Unit
+ * @group unit
+ */
 class ItemServiceTest extends TestCase
 {
     /**
