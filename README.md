@@ -10,12 +10,16 @@
 
 ### Run tests
 
-make tests
+make tests (all but functional)
+make tests-functional (only functional tests)
 
 ### API credentials
 
 * User: john
 * Password: maxsecure
+
+* User2: jane
+* Password: minsecure
 
 ### Postman requests collection
 
