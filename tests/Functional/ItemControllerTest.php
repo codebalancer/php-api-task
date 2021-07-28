@@ -95,7 +95,7 @@ class ItemControllerTest extends WebTestCase
     }
 
     /**
-     *
+     * create and delete item
      */
     public function testCreateAndDelete()
     {
@@ -147,17 +147,49 @@ class ItemControllerTest extends WebTestCase
     }
 
     /**
+     *
+     */
+    public function testCreateUnauthenticatedUserFails()
+    {
+        $client = static::createClient();
+        $client->request('PUT', '/item/1');
+
+        $this->assertNotEquals(200, $client->getResponse()->getStatusCode());
+    }
+
+    /**
      * test updating existing item
      */
-    public function testCreateAndUpdate()
+    public function testCreateAndUpdateItem()
     {
         $client = static::createClient();
         $userRepository = $this->getUserRepository();
         $user = $userRepository->findOneByUsername('john');
+        $client->loginUser($user);
 
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $data = 'newly created item data';
+        $itemData = ['data' => $data];
+        $client->request('POST', '/item', $itemData);
+
+        // retrieve the id for update
+        $client->request('GET', '/item');
+        $responseData = json_decode($client->getResponse()->getContent(), TRUE);
+
+        $this->assertSame(1, sizeof($responseData));
+        $this->assertSame($data, $responseData[0]['data']);
+
+        $itemId = $responseData[0]['id'];
+
+        $updateData = 'updated item data is so fresh';
+        $updateItem = ['data', $updateData];
+
+        $client->request('PUT', '/item/' . $itemId, $updateItem);
+
+        $client->request('GET', '/item');
+        $updateResponseData = json_decode($client->getResponse()->getContent(), TRUE);
+        $this->assertSame(1, sizeof($updateResponseData));
+
+        $this->assertSame('updated item data is so fresh', $updateResponseData[0]['data']);
     }
 
 
