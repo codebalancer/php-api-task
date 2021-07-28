@@ -175,21 +175,22 @@ class ItemControllerTest extends WebTestCase
         $client->request('GET', '/item');
         $responseData = json_decode($client->getResponse()->getContent(), TRUE);
 
-        $this->assertSame(1, sizeof($responseData));
-        $this->assertSame($data, $responseData[0]['data']);
-
-        $itemId = $responseData[0]['id'];
+        $lastItem = $responseData[array_key_last($responseData)];
+        $this->assertSame($data, $lastItem['data']);
+        $itemId = $lastItem['id'];
 
         $updateData = 'updated item data is so fresh';
-        $updateItem = ['data', $updateData];
+        $updateItem = ['data' => $updateData];
 
         $client->request('PUT', '/item/' . $itemId, $updateItem);
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+        $this->assertEmpty(json_decode($client->getResponse()),TRUE);
 
         $client->request('GET', '/item');
         $updateResponseData = json_decode($client->getResponse()->getContent(), TRUE);
-        $this->assertSame(1, sizeof($updateResponseData));
 
-        $this->assertSame('updated item data is so fresh', $updateResponseData[0]['data']);
+        $updateResponseDataLastItem = $updateResponseData[array_key_last($updateResponseData)];
+        $this->assertSame('updated item data is so fresh', $updateResponseDataLastItem['data']);
     }
 
 
