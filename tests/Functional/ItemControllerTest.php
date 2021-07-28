@@ -18,6 +18,41 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class ItemControllerTest extends WebTestCase
 {
+
+    /**
+     * unauthenticated user should not see any items at all
+     */
+    public function testGetNoItemsIfNotAuthenticated()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/item');
+
+        $this->assertSame(401, $client->getResponse()->getStatusCode());
+        $this->assertStringContainsString('<!DOCTYPE html>', $client->getResponse()->getContent());
+    }
+
+    /**
+     * for authenticated new user show empty items data but as json response
+     */
+    public function testAuthenticatedNewUserHasNoItems()
+    {
+        $client = static::createClient();
+        $client->loginUser($this->getOneUserByUsername('john'));
+        $client->request('GET', '/item');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $this->assertEmpty(
+            json_decode($client->getResponse()->getContent(), TRUE)
+        );
+    }
+    /**
+     * user should only see their own items
+     */
+    public function testAuthenticatedUserGetsOwnItemsOnly()
+    {
+        $this->markTestIncomplete();
+    }
     /**
      * create item with data and verify in the db
      */
@@ -26,22 +61,11 @@ class ItemControllerTest extends WebTestCase
         $client = static::createClient();
 
         /**
-         * @var $userRepository UserRepository
-         */
-        $userRepository = $this->getUserRepository();
-        /**
          * @var $itemRepository ItemRepository
          */
         $itemRepository = $this->getItemRepository();
 
-        /**
-         * @var $user User
-         */
-        $user = $userRepository->findOneByUsername('john');
-
-        if (!$user instanceof User) {
-            $this->fail('user for test missing');
-        }
+        $user = $this->getOneUserByUsername('john');
 
         $client->loginUser($user);
         
@@ -86,8 +110,8 @@ class ItemControllerTest extends WebTestCase
     public function testDelete()
     {
         $client = static::createClient();
-        $user = $this->getUserRepository()->findOneByUsername('john');
-        $user2 = $this->getUserRepository()->findOneByUsername('jane');
+        $user  = $this->getOneUserByUsername('john');
+        $user2 = $this->getOneUserByUsername('jane');
         $client->loginUser($user);
 
         $data = 'secure data to be deleted';
@@ -132,6 +156,34 @@ class ItemControllerTest extends WebTestCase
 
     }
 
+    /**
+     * test updating existing item
+     */
+    public function testUpdate()
+    {
+        $client = static::createClient();
+        $userRepository = $this->getUserRepository();
+        $user = $userRepository->findOneByUsername('john');
+
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @param $name string
+     * @return User
+     */
+    private function getOneUserByUsername($name)
+    {
+        $user = $this->getUserRepository()->findOneByUsername($name);
+
+        if (!$user instanceof User) {
+            $this->throwException('user for test not found');
+        }
+
+        return $user;
+    }
     private function getUserRepository() : UserRepository
     {
         return static::$container->get(UserRepository::class);
