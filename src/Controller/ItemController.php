@@ -49,16 +49,13 @@ class ItemController extends AbstractController
      * @Route("/item/{id}", name="items_delete", methods={"DELETE"})
      * @IsGranted("ROLE_USER")
      */
-    public function delete(Request $request, int $id) : JsonResponse
+    public function delete(Request $request, int $id, ItemService $itemService) : JsonResponse
     {
         if (empty($id)) {
             return $this->json(['error' => 'id parameter missing'], Response::HTTP_BAD_REQUEST);
         }
 
-        /**
-         * @var Item $item
-         */
-        $item = $this->getDoctrine()->getRepository(Item::class)->find($id);
+        $item = $itemService->getItemById($id);
 
         if ($item === null) {
             return $this->json(['error' => 'No item'], Response::HTTP_BAD_REQUEST);
@@ -69,9 +66,7 @@ class ItemController extends AbstractController
             return $this->json(['error' => ''], Response::HTTP_FORBIDDEN);
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($item);
-        $manager->flush();
+        $itemService->deleteItem($item);
 
         return $this->json([]);
     }
@@ -92,7 +87,7 @@ class ItemController extends AbstractController
             return $this->json(['error' => 'No data parameter'], Response::HTTP_BAD_REQUEST);
         }
 
-        $item = $this->getDoctrine()->getRepository(Item::class)->find($id);
+        $item = $itemService->getItemById($id);
         if (!$item instanceof Item) {
             return $this->json(['error' => 'item with id does not exist'], Response::HTTP_NOT_FOUND);
         }
@@ -109,10 +104,7 @@ class ItemController extends AbstractController
         }
 
         //update the item data
-        $item->setData($data);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->flush();
+        $itemService->update($item->getId(), $data);
 
         return $this->json([]);
     }

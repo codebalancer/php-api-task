@@ -16,17 +16,43 @@ class ItemService
     }
 
     /**
-     * create new Item for the user with some data
+     * create and persist new Item for the user with some data
      * @param User $user
      * @param string $data
      */
-    public function create(User $user, string $data): void
+    public function create(User $user, string $data): Item
     {
         $item = $this->createItem();
         $item->setUser($user);
         $item->setData($data);
 
         $this->entityManager->persist($item);
+        $this->entityManager->flush();
+
+        return $item;
+    }
+
+    /**
+     * updates existing item
+     * @param int $id the item id
+     * @param string $data the item data
+     */
+    public function update(int $id, string $data) : void
+    {
+        $item = $this->getItemById($id);
+        $item->setData($data);
+
+        $this->entityManager->persist($item);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * deletes item
+     * @param $item
+     */
+    public function deleteItem(Item $item) : void
+    {
+        $this->entityManager->remove($item);
         $this->entityManager->flush();
     }
 
@@ -71,6 +97,7 @@ class ItemService
     }
 
     /**
+     * gets all items for the user
      * @param User $user
      * @return mixed
      */
@@ -79,7 +106,14 @@ class ItemService
         return $this->entityManager->getRepository(Item::class)->findByUser($user);
     }
 
-
+    /**
+     * @param int $id
+     * @return Item
+     */
+    public function getItemById(int $id) : Item
+    {
+        return $this->entityManager->getRepository(Item::class)->find($id);
+    }
 
 
 } 
