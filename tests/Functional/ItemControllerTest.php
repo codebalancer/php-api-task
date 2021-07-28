@@ -46,31 +46,23 @@ class ItemControllerTest extends WebTestCase
             json_decode($client->getResponse()->getContent(), TRUE)
         );
     }
+
     /**
-     * user should only see their own items
+     * create items with data and get/verify afterwards
      */
-    public function testAuthenticatedUserGetsOwnItemsOnly()
-    {
-        $this->markTestIncomplete();
-    }
-    /**
-     * create item with data and verify in the db
-     */
-    public function testCreate()
+    public function testAuthenticatedUserCreatesItemsAndGetsOwnItemsOnly()
     {
         $client = static::createClient();
-
-        /**
-         * @var $itemRepository ItemRepository
-         */
         $itemRepository = $this->getItemRepository();
-
         $user = $this->getOneUserByUsername('john');
 
         $client->loginUser($user);
         
         $data = 'very secure new item data';
         $newItemData = ['data' => $data];
+
+        $data2 = 'even more important data';
+        $newItemData2 = ['data' => $data2];
 
         $client->request('POST', '/item', $newItemData);
         $response = $client->getResponse();
@@ -81,33 +73,31 @@ class ItemControllerTest extends WebTestCase
         // response should be empty json
         $this->assertSame('[]', $response->getContent());
 
-        // try to find the new item in json response, should be the latest = last = only one
+        // add another one
+        $client->request('POST', '/item', $newItemData2);
+
+
+        // try to find the new items in json response, should be the only ones
         $client->request('GET', '/item');
         $this->assertResponseIsSuccessful();
         $responseJSON = $client->getResponse()->getContent();
-        $data = json_decode($responseJSON, TRUE);
-        $this->assertNotEmpty($data, 'json response seems empty');
-        $last = $data[array_key_last($data)];
+        $responseData = json_decode($responseJSON, TRUE);
+        $this->assertNotEmpty($responseData, 'json response seems empty');
 
-        $this->assertSame('very secure new item data', $last['data']);
+        // we should have 2 items and they are what we added
+        $this->assertSame(2, sizeof($responseData));
 
-        // actually find the new item in db and compare
-        $criteria = ['user' => $user->getId()];
-        $items = $itemRepository->findBy($criteria);
-        // there should only be one by now
-        $this->assertSame(1, sizeof($items));
+        $responseItem1 = $responseData[0];
+        $responseItem2 = $responseData[1];
 
-        /**
-         * @var Item
-         */
-        $item = $items[0];
-
-        // both should be the same item(id) and content
-        $this->assertSame($item->getId(), $last['id']);
-        $this->assertSame($item->getData(), $last['data']);
+        $this->assertSame('very secure new item data', $responseItem1['data']);
+        $this->assertSame('even more important data',  $responseItem2['data']);
     }
 
-    public function testDelete()
+    /**
+     *
+     */
+    public function testCreateAndDelete()
     {
         $client = static::createClient();
         $user  = $this->getOneUserByUsername('john');
@@ -137,7 +127,7 @@ class ItemControllerTest extends WebTestCase
         $this->assertArrayHasKey('error', $responseData2);
         #$this->assertSame('No item', $responseData2['error']);
 
-        // go back to correct user
+        // go back to original user
         $client->loginUser($user);
 
         // now it should work
@@ -159,7 +149,7 @@ class ItemControllerTest extends WebTestCase
     /**
      * test updating existing item
      */
-    public function testUpdate()
+    public function testCreateAndUpdate()
     {
         $client = static::createClient();
         $userRepository = $this->getUserRepository();
@@ -169,6 +159,7 @@ class ItemControllerTest extends WebTestCase
             'This test has not been implemented yet.'
         );
     }
+
 
     /**
      * @param $name string
@@ -184,6 +175,7 @@ class ItemControllerTest extends WebTestCase
 
         return $user;
     }
+
     private function getUserRepository() : UserRepository
     {
         return static::$container->get(UserRepository::class);
