@@ -97,7 +97,7 @@ class ItemControllerTest extends WebTestCase
     /**
      * create and delete item
      */
-    public function testCreateAndDelete()
+    public function testCreateAndDeleteItem()
     {
         $client = static::createClient();
         $user  = $this->getOneUserByUsername('john');
@@ -149,7 +149,7 @@ class ItemControllerTest extends WebTestCase
     /**
      *
      */
-    public function testCreateUnauthenticatedUserFails()
+    public function testCreateItemByUnauthenticatedUserFails()
     {
         $client = static::createClient();
         $client->request('PUT', '/item/1');
@@ -198,7 +198,7 @@ class ItemControllerTest extends WebTestCase
      * @param $name string
      * @return User
      */
-    private function getOneUserByUsername($name)
+    private function getOneUserByUsername($name) : User
     {
         $user = $this->getUserRepository()->findOneByUsername($name);
 
